@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Mean shell</title>
+	<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+
+</head>
+<body style="margin-left:30px">
+	<div>
+		<form>
+             Message:&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+              <input type="text" id="mess" name="mess" />
+              <input type="submit" id="buttonInsert" value="Insert" />
+        </form>
+        <form>
+            Search by ID: &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+            <input type="text" id="searchID" name="searchID" />
+            <input type="submit" id="ID" value="Search" />
+        </form>
+
+        <form>
+            Search by Content: &nbsp
+            <input type="text" id="searchMsg" name="searchMsg" />
+            <input type="submit" id="Msg" value="Search" />
+        </form>
+        <form>
+            Search by ObjectID:&nbsp&nbsp
+            <input type="text" id="searchobjectID" name="searchobjectID" />
+            <input type="submit" id="objectID" value="Search" />
+        </form>
+        <h2>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspMessage</h2>
+
+        <table class="table" border="0">
+            <thead>
+            	<tr>
+	                <td class="col1">&nbsp&nbsp&nbspID</td>
+	                <td class="col2">&nbsp&nbspMessage Content</td>
+	                <td class="col3">&nbsp&nbsp&nbspUpdate/Delete</td>
+            	</tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+        <input style="padding-left: 300px"type="submit" id="buttonBack" style="display:none"value="Return" />
+	</div>
+	<script type="text/javascript">
+
+		$(function(){
+			populateText();
+
+            $('#buttonInsert').click(function(e){
+                e.preventDefault();
+
+                var	mes = $("#mess").val();
+                //Get the total number of data records and the last record's ID in an array
+				var arr = populate();
+				var num = parseInt(arr[1].slice(3)) +1;
+				var ItemID = "NUM" + num.toString();
+				var data = {
+		            number: ItemID,
+		            message: mes
+		        }
+
+				$.ajax({
+					type: 'POST',
+					dataType: 'json',
+			        contentType: 'application/json',
+                    url: 'http://localhost:8080/api/insert',
+                    success: function(result) {
+                        console.log('success');
+
+                    },
+                    data: JSON.stringify(data),
+                });
+                populateText();
+            });
+
+
+            $('#ID').click(function(e){
+                e.preventDefault();
+                var	id = $("#searchID").val();
+				var data = {
+		            number: id
+		        }
+
+				$.ajax({
+					type: 'POST',
+					dataType: 'json',
+			        contentType: 'application/json',
+                    url: 'http://localhost:8080/api/searchByID',
+                    success: function(result) {
+                    	$("tbody").empty();
+                        console.log('Message ID you want to search is '+id);
+                      {
+							$.each(result, function(i, item) {
+								var itemMess = item.message;
+								$("tbody").append(  "<tr>" +
+			                                            "<td class=\"col1\">"+"<strong>"+ item.number +"</strong>"+ "</td>" +
+			                                            "<td class=\"col2\" contentEditable=\"true\">"+"<strong>"+"&nbsp"+"&nbsp"+"&nbsp"+"&nbsp"+ itemMess + "</strong>"+"</td>" +
+			                                            "<td class=\"col3\">&nbsp;&nbsp;" +
+                                    "<input type=\"submit\" class=\"Update\" value=\"Update\" onclick=\"updateBtnClicked(this)\"/>" +
+			                                                "<input type=\"submit\" class=\"Delete\" value=\"Delete\" onclick=\"delBtnClicked(this)\"/>" +
+
+
+			                                            "</td>" +
+			                                        "</tr>");
+							});
+						}
+						$("#buttonBack").css({"display" : "inline"});
+                    },
+                    data: JSON.stringify(data),
+                });
+            });
+
+            $('#Msg').click(function(e){
+                e.preventDefault();
+                var	mess = $("#searchMsg").val();
+                var data = {
+                    message: mess
+                }
+
+                //Insert new item to database using ajax POST() methed
+                $.ajax({
+                    type: 'POST',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    url: 'http://localhost:8080/api/searchByMessage',
+                    success: function(result) {
+                        $("tbody").empty();
+                        console.log('Message content you want to search is '+mess);
+                       {
+                            $.each(result, function(i, item) {
+                                var itemMess = item.message;
+                                $("tbody").append(  "<tr>" +
+                                    "<td class=\"col1\">"+"<strong>"+ item.objectID+"</strong>"+  "</td>" +
+                                    "<td class=\"col1\">"+"<strong>"+ item.number +"</strong>"+  "</td>" +
+                                    "<td class=\"col2\" contentEditable=\"true\">" +"<strong>"+"&nbsp"+"&nbsp"+"&nbsp"+"&nbsp"+ itemMess + "</strong>" + "</td>" +
+                                    "<td class=\"col3\">&nbsp;&nbsp;" +
+                                    "<input type=\"submit\" class=\"buttonDelete\" value=\"Delete\" onclick=\"delBtnClicked(this)\"/>&nbsp;&nbsp;" +
+                                    "<input type=\"submit\" class=\"buttonUpdate\" value=\"Update\" onclick=\"updateBtnClicked(this)\"/>" +
+                                    "</td>" +
+                                    "</tr>");
+                            });
+                        }
+                        $("#buttonBack").css({"display" : "inline"});
+                    },
+                    data: JSON.stringify(data),
+                });
+            });
+
+            $('#objectID').click(function(e){
+                e.preventDefault();
+                var	objectID = $("#searchobjectID").val();
+                var data = {
+                    objectID:objectID
+                }
+
+                $.ajax({
+                    type: 'POST',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    url: 'http://localhost:8080/api/searchByObjectID',
+                    success: function(result) {
+                        $("tbody").empty();
+                        console.log('Message ID you want to search is '+objectID);
+                        {
+                            $.each(result, function(i, item) {
+                                var itemMess = item.message;
+                                $("tbody").append(  "<tr>" +
+                                    "<td class=\"col1\">"+"<strong>"+ item.number +"</strong>"+ "</td>" +
+                                    "<td class=\"col2\" contentEditable=\"true\">"+"<strong>"+"&nbsp"+"&nbsp"+"&nbsp"+"&nbsp"+ itemMess + "</strong>"+"</td>" +
+                                    "<td class=\"col3\">&nbsp;&nbsp;" +
+                                    "<input type=\"submit\" class=\"Update\" value=\"Update\" onclick=\"updateBtnClicked(this)\"/>" +
+                                    "<input type=\"submit\" class=\"Delete\" value=\"Delete\" onclick=\"delBtnClicked(this)\"/>" +
+
+
+                                    "</td>" +
+                                    "</tr>");
+                            });
+                        }
+                        $("#buttonBack").css({"display" : "inline"});
+                    },
+                    data: JSON.stringify(data),
+                });
+            });
+
+            $('#buttonBack').click(function(e){
+                populateText();
+            });
+
+        });
+
+
+
+		 function populate() {
+			 var length = null;
+			 var lastID = null;
+		     $.ajax({
+		        url: 'http://localhost:8080/api/show',
+		        type: 'get',
+		        dataType: 'json',
+		        async: false,
+		        success: function(data) {
+		            length = data.length;
+		            if(length == 0)
+		            	lastID = "NUM0";
+		            else
+		            	lastID = data[data.length-1].number;
+		        }
+		     });
+		     var arr = [length, lastID];
+		     return arr;
+		}
+
+
+		function delBtnClicked(button){
+
+			var id = $(button).parent().prev().prev().text();
+			var mess = $(button).parent().prev().text();
+			console.log("Deleted Message: " + "ID：" + id + ", Message: " + mess);
+			var data = {
+				number: id,
+				message: mess
+			}
+			$.ajax({
+					type: 'POST',
+					dataType: 'json',
+			        contentType: 'application/json',
+                    url: 'http://localhost:8080/api/delete',
+                    success: function(result) {
+                        console.log('successfully');
+                        window.alert("Deleted successfully.");
+                    },
+                    data: JSON.stringify(data),
+            });
+            populateText();
+            alert("The message has been deleted successfully!");
+		}
+
+		function updateBtnClicked(button){
+            alert("Message has been updated! See in the console window!");
+			var id = $(button).parent().prev().prev().text();
+			var mess = $(button).parent().prev().text();
+			console.log("Updated message: " + "ID：" + id + ", Message: " + mess);
+			var data = {
+				number: id,
+				message: mess
+			}
+			$.ajax({
+					type: 'POST',
+					dataType: 'json',
+			        contentType: 'application/json',
+                    url: 'http://localhost:8080/api/update',
+                    success: function(result) {
+                        console.log('successfully');
+                        window.alert("Updated successfully.");
+                    },
+                    data: JSON.stringify(data),
+            });
+            populateText();
+		}
+        function populateText() {
+            $("tbody").empty();
+            $.get('http://localhost:8080/api/show', function(data, status){
+                {
+                    $.each(data, function(i, item) {
+                        var itemMess = item.message;
+                        $("tbody").append(  "<tr>" +
+                            "<td class=\"col1\">" + "<strong>"+ item.number +"</strong>"+ "</td>" +
+                            "<td class=\"col2\" contentEditable=\"true\">"+"<strong>"+"&nbsp"+"&nbsp"+"&nbsp"+"&nbsp"+ itemMess + "</strong>"+ "</td>" +
+                            "<td class=\"col3\">&nbsp;&nbsp;" +
+                            "<input type=\"submit\" class=\"Update\" value=\"Update\" onclick=\"updateBtnClicked(this)\"/>" +
+                            "<input type=\"submit\" class=\"Delete\" value=\"Delete\" onclick=\"delBtnClicked(this)\"/>&nbsp;&nbsp;" +
+
+                            "</td>" +
+                            "</tr>");
+                    })
+                }
+                reset_data();
+
+            });
+        }
+
+        function reset_data() {
+            $('#mess').val("");
+            $('#searchID').val("");
+            $('#searchMsg').val("");
+        }
+	</script>
+</body>
+</html>

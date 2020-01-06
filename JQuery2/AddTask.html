@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="Style.css">
+</head>
+<body>
+<header>
+  <h1>Wishlist</h1>
+</header>
+
+<main>
+  <div class="container">
+    <h3>Add New Task</h3>
+    <form class="form-inline">
+      <input id="taskContent" type="text" class="form-control col-12 col-sm-9 col-md-8 col-lg-10 mr-sm-2 mb-2 mb-sm-0" id="newTask">
+      <button style="background-color: #365F9C; color:white"id="addBtn" type="submit" class="btn btn-primary col-4 col-sm-2 col-md-2 col-lg-1 mt-2 mt-sm-0" onclick="return addTask()">Add</button>
+    </form>
+    <br><br>
+
+    <div class="d-inline-block col-12 col-md-10 col-lg-5 nopadding mr-0 mr-lg-4">
+      <ul id="incompleteList" class="list-group">
+        <h3>Incomplete Tasks</h3>
+      </ul>
+    </div>
+
+    <div class="d-inline-block col-12 col-md-10 col-lg-5 nopadding mt-4 mt-lg-0 ml-0 ml-lg-4">
+      <ul id="completeList" class="list-group">
+        <h3>Completed Tasks</h3>
+      </ul>
+    </div>
+  </div>
+</main>
+
+<footer class="fixed-bottom font-small">
+  <i>Footer</i>
+</footer>
+
+<script>
+
+  function addTask(){
+    var taskContent = $("#taskContent").val();
+    if(taskContent==""){
+      alert("Please input a new task.");
+    }else{
+      var flag=true;
+        $("p").each(function(index){
+            if($(this).text()==taskContent){
+                flag=false;
+            }
+        })
+        if(flag==false){
+            alert("Please do not input a existed task.");
+            return false;
+        }
+        else{
+            var newTask= $("<li class=\"list-group-item\">" +
+                "<p  class=\"d-inline\">" + taskContent +"</p>" +
+                "<input class=\"d-inline float-right\" type=\"checkbox\" onclick=\"checkbox(this)\">"+
+                "</li>");
+
+            $("#incompleteList").append(newTask);
+        }
+    }
+      $("#taskContent").val("");
+      return false;
+  };
+
+  function checkbox(checkbox){
+    var finished = $(checkbox).parent();
+    $(checkbox).parent().remove();
+    $(finished).children("input").remove();
+    var newDelBtn= $("<button class=\"btn-sm btn-danger d-inline float-right delBtn_padding\" " +
+      "onclick=\"delBtn(this)\">Delete</button>");
+    finished.append(newDelBtn);
+    $("#completeList").append(finished);
+
+    return false;
+  }
+
+  function delBtn(button){
+    $(button).parent().remove();
+  }
+
+</script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+</body>
+</html>
